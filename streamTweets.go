@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 	"bufio"
+	"strings" 
 	
 	"github.com/ChimeraCoder/anaconda"
 )
@@ -81,16 +82,17 @@ func main() {
 	go streamListener(stream)
 	//go streamWriter(stream)
 	for v := range(stream){
+		tweetText := strings.Replace(v.Text, ",", " ", -1) //Remove all commas iside tweet text
 		if v.HasCoordinates() { //Assumption that coordinates are type point
 			longitude, err1 := v.Longitude()
 			latitude, err2 := v.Latitude()
 			if err1 != nil || err2 != nil { // ideally this should never happen
-				fmt.Fprintf(writer, "%s, %s, %s, , \n",v.Text, v.User.TimeZone, v.CreatedAt)
+				fmt.Fprintf(writer, "%s, %s, %s, , \n",tweetText, v.User.TimeZone, v.CreatedAt)
 			} else {
-				fmt.Fprintf(writer, "%s, %s, %s, %v, %v \n",v.Text, v.User.TimeZone, v.CreatedAt, longitude, latitude)
+				fmt.Fprintf(writer, "%s, %s, %s, %v, %v \n",tweetText, v.User.TimeZone, v.CreatedAt, longitude, latitude)
 			}
 		} else {
-			fmt.Fprintf(writer, "%s, %s, %s, , \n",v.Text, v.User.TimeZone, v.CreatedAt)
+			fmt.Fprintf(writer, "%s, %s, %s, , \n",tweetText, v.User.TimeZone, v.CreatedAt)
 		}
 		
 	}
