@@ -78,11 +78,14 @@ func main() {
 		log.Printf("flushed contents of writer")
 	}()
 	fmt.Fprintln(writer, "Text, User.TimeZone, CreatedAt, longitude, latitude")
+	
+	r := strings.NewReplacer(",", " ", "\n", " ") //NewReplacer will remove occurences of comma and newlines
+	
 	stream := make(chan anaconda.Tweet, 10) //buffered channel size 10
 	go streamListener(stream)
 	//go streamWriter(stream)
 	for v := range(stream){
-		tweetText := strings.Replace(v.Text, ",", " ", -1) //Remove all commas iside tweet text
+		tweetText := r.Replace(v.Text)
 		if v.HasCoordinates() { //Assumption that coordinates are type point
 			longitude, err1 := v.Longitude()
 			latitude, err2 := v.Latitude()
